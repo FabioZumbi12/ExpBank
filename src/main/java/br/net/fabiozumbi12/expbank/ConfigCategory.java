@@ -32,8 +32,6 @@ public class ConfigCategory {
         public String exp_removed_other = "&6{value} &aexperience(s) taken out from Bank and sent to &6{other}&a.";
         @Setting(value = "no-permission")
         public String no_permission = "&cYou don't have permission to create or use Experience Banks.";
-        @Setting(value = "no-other")
-        public String no_other = "&cThe amount of &6{value} exp &chas been removed with this bank!";
         @Setting(value = "cant-place")
         public String cant_place = "&cYou can't place experience banks here!";
         @Setting(value = "max-deposit")
