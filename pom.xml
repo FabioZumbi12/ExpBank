@@ -6,7 +6,7 @@
 
     <groupId>br.net.fabiozumbi12</groupId>
     <artifactId>ExpBank</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>ExpBank</name>

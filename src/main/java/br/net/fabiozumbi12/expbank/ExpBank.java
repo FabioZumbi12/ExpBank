@@ -14,6 +14,7 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.Sign;
 import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.data.DataQuery;
@@ -42,13 +43,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.reflect.TypeToken.of;
 
 @Plugin(
         id = "expbank",
         name = "ExpBank",
-        version = "1.0",
+        version = "1.1",
         description = "Plugin to store player experiences on signs",
         authors = {
                 "FabioZumbi12"
@@ -80,13 +82,42 @@ public class ExpBank {
         offlineLoader = HoconConfigurationLoader.builder().setFile(new File(configDir.toFile(), "offline.conf")).build();
         initConfig();
 
+        CommandSpec give = CommandSpec.builder()
+                .description(Text.of("Command to give experience to online and offline players"))
+                .arguments(
+                        GenericArguments.firstParsing(GenericArguments.player(Text.of("player")), GenericArguments.string(Text.of("offline-player"))),
+                        GenericArguments.integer(Text.of("level"))
+                )
+                .permission("expbank.command.give")
+                .executor((sender, args) -> {
+                    int level = args.<Integer>getOne("level").get();
+
+                    if (args.hasAny("player")){
+                        Player p = args.<Player>getOne("player").get();
+                        int player_level = p.get(Keys.EXPERIENCE_LEVEL).get();
+                        p.offer(Keys.EXPERIENCE_LEVEL, level + player_level);
+                        sender.sendMessage(toText(root.strings.command_give
+                                .replace("{value}", String.valueOf(level))
+                                .replace("{player}", p.getName())));
+                    } else
+                    if (args.hasAny("offline-player")){
+                        String p = args.<String>getOne("offline-player").get();
+                        setOfflineLevel(p, level);
+                        offRoot.getNode("offline", p).setValue(level);
+                        sender.sendMessage(toText(root.strings.command_give
+                                .replace("{value}", String.valueOf(level))
+                                .replace("{player}", p)));
+                    }
+                    return CommandResult.success();
+                }).build();
+
         CommandSpec reload = CommandSpec.builder()
                 .description(Text.of("Reload command for ExpBank"))
                 .permission("expbank.command.reload")
                 .executor((sender, args) -> {
 
                     initConfig();
-                    sender.sendMessage(toText("&a[ExpBank] Configuration reloaded with success"));
+                    sender.sendMessage(toText(root.strings.command_reload));
                     return CommandResult.success();
 
                 }).build();
@@ -97,12 +128,15 @@ public class ExpBank {
                 .executor((sender, args) -> {
 
                     sender.sendMessage(toText("&a[ExpBank] Developed by FabioZumbi12"));
-                    if (sender.hasPermission("expbank.command.reload"))
-                        sender.sendMessage(toText("&6- Available commands: &areload"));
-
+                    List<String> cmds = Stream.of("reload", "give").filter(cmd-> sender.hasPermission("expbank.command."+cmd)).collect(Collectors.toList());
+                    if (!cmds.isEmpty()){
+                        sender.sendMessage(toText("&6- Available commands: " + Arrays.toString(cmds.toArray())));
+                    }
                     return CommandResult.success();
 
-                }).child(reload, "reload")
+                })
+                .child(reload, "reload")
+                .child(give, "give")
                 .build(), "expbank");
 
 
@@ -129,8 +163,8 @@ public class ExpBank {
         if (!playerNode.isVirtual()) {
             int player_level = p.get(Keys.EXPERIENCE_LEVEL).get() + playerNode.getInt(0);
             p.offer(Keys.EXPERIENCE_LEVEL, player_level);
-            p.sendMessage(toText(root.strings.other_sign_break
-                    .replace("{value}", String.valueOf(player_level))));
+            if (root.message_onjoin) p.sendMessage(toText(root.strings.other_sign_break
+                    .replace("{value}", String.valueOf(playerNode.getInt(0)))));
             playerNode.setValue(null);
             try {
                 offlineLoader.save(offRoot);
@@ -284,8 +318,12 @@ public class ExpBank {
     }
 
     private void setOfflineLevel(String player, String level) {
+        setOfflineLevel(player, Integer.parseInt(level));
+    }
+
+    private void setOfflineLevel(String player, int level) {
         ConfigurationNode node = offRoot.getNode("offline", player);
-        node.setValue(node.getInt(0) + Integer.parseInt(level));
+        node.setValue(node.getInt(0) + level);
         try {
             offlineLoader.save(offRoot);
         } catch (IOException ex) {

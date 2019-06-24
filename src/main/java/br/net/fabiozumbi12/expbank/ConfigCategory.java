@@ -14,6 +14,8 @@ public class ConfigCategory {
     public int level_per_interaction = 100;
     @Setting(value = "shift-once", comment = "If shift pressed should put/remove all from/to bank.")
     public boolean shift_once = true;
+    @Setting(value = "message-onjoin", comment = "If the player has exp to get on login, show message?")
+    public boolean message_onjoin = false;
 
     @Setting
     public stringsCat strings = new stringsCat();
@@ -38,5 +40,9 @@ public class ConfigCategory {
         public String max_deposit = "&cYou can't deposit more experience here. The limit is &6{value}&c!";
         @Setting(value = "other-sign-break")
         public String other_sign_break = "&aAn Experience Bank in your name was broken and you get back &6{value} &alevels.";
+        @Setting(value = "command-reload")
+        public String command_reload = "&a[ExpBank] Reloaded with success!";
+        @Setting(value = "command-give")
+        public String command_give = "&aGiven &6{value} &alevel(s) to &6{player}&a!";
     }
 }

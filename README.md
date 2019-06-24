@@ -15,9 +15,10 @@
 
 ### Permissions
 **expbank.use** - To allow player to create and interact with exp banks.  
-**expbank.others** - To break expbanks from other players.  
+**expbank.others** - To break exp banks from other players.  
 **expbank.command.base** - Base permission for ExpBank commands.  
-**expbank.command.reload** - Permission to run the reload command.  
+**expbank.command.give / expbank give \<player> \<level>** - Permission for command to give experience to online and offline players.  
+**expbank.command.reload / expbank reload** - Permission to run the reload command.  
 
 ### Download:
 Sponge Ore: https://ore.spongepowered.org/FabioZumbi12/ExpBank  
