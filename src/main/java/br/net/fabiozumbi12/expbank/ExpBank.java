@@ -94,7 +94,7 @@ public class ExpBank {
 
         CommandSpec reload = CommandSpec.builder()
                 .description(Text.of("Reload command for ExpBank"))
-                .permission("expbank.reload")
+                .permission("expbank.command.reload")
                 .executor((sender, args) ->{
 
                     initConfig();
@@ -105,6 +105,7 @@ public class ExpBank {
 
         Sponge.getCommandManager().register(this, CommandSpec.builder()
                 .description(Text.of("Main command for ExpBank"))
+                .permission("expbank.command.base")
                 .executor((sender, args) ->{
 
                     sender.sendMessage(toText("&a[ExpBank] Developed by FabioZumbi12"));
